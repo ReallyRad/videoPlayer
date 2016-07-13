@@ -9,7 +9,7 @@ public:
 	void update();
 	void draw();
 	void checkNewVideos();
-	void addNewVideo(string path);
+	void addNewVideo(string path, bool end);
 
 	std::vector<ofVideoPlayer> videoPlayers;
 	int current;

@@ -18,7 +18,7 @@ void ofApp::setup() {
 
 	//go through and load all the videos
 	for (int i = 0; i < dir.size(); i++) {
-		addNewVideo(dir.getPath(i));
+		addNewVideo(dir.getPath(i), true);
 	}
 
 	ofLogNotice(filesPaths);
@@ -37,18 +37,18 @@ void ofApp::update() {
 		fileTimer = ofGetElapsedTimeMillis();
 	}
 
-	//update current playing video
-	videoPlayers[current].update();
-
+	
 	//if video finished, rewind, pause and go to next video
 	if (videoPlayers[current].getIsMovieDone()) {
 		videoPlayers[current].stop();
-		//videoPlayers[current].setFrame(0);
+		videoPlayers[current].setFrame(0);
 		if (current < videoPlayers.size() - 1) current++;
 		else current = 0;
 		videoPlayers[current].play();
 	}
 
+	//update current playing video
+	videoPlayers[current].update();
 }
 
 //--------------------------------------------------------------
@@ -69,19 +69,22 @@ void ofApp::checkNewVideos() {
 		for (int j = 0; j < filesPaths.size(); j++) {
 			//if video not already in files list, add it
 			if (std::find(filesPaths.begin(), filesPaths.end(), dir.getPath(i)) == filesPaths.end()) {
-				cout << "new video found" << endl;
-				addNewVideo(dir.getPath(i));
+				cout << "new video found : " << dir.getPath(i) << endl;
+				addNewVideo(dir.getPath(i), false);
 			}
 		}
 	}
 
 }
 
-void ofApp::addNewVideo(string path) {
+void ofApp::addNewVideo(string path, bool end) {
 	filesPaths.push_back(path);
 	ofVideoPlayer * v = new ofVideoPlayer();
 	v->load(path);
 	v->setLoopState(OF_LOOP_NONE);
 	v->setAnchorPercent(0.5, 0.5);
-	videoPlayers.push_back(*v);
+	//put at end of queue
+	if (end) videoPlayers.push_back(*v);
+	//put after currently playing video
+	else videoPlayers.insert(videoPlayers.begin() + current + 1, *v);	
 }
