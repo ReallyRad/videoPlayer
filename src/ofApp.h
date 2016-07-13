@@ -11,8 +11,10 @@ public:
 	void checkNewVideos();
 	void loadVideo(string path, ofVideoPlayer* videoPlayer);
 
-	ofVideoPlayer* current;
-	ofVideoPlayer* next;
+	ofVideoPlayer videoPlayers[3];
+	ofVideoPlayer * current;
+	ofVideoPlayer * next;
+
 	int fileIndex;
 	int nr_videos;
 	std::vector<string> filesPaths;

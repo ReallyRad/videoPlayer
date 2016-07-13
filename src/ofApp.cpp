@@ -7,28 +7,30 @@ void ofApp::setup() {
 	//populate the directory object
 	dir.listDir();
 	
-	current = new ofVideoPlayer();
-	next = new ofVideoPlayer();
+	videoPlayers[0] = *new ofVideoPlayer();
+	videoPlayers[1] = *new ofVideoPlayer();
 
 	//go through and save the files paths
 	for (int i = 0; i < dir.size(); i++) {
 		filesPaths.push_back(dir.getPath(i));
 	}
 
-	//load the first two videos
-	if (filesPaths.size() > 1) {
-		loadVideo(filesPaths[0], current);
-		loadVideo(filesPaths[1], next);
+	//load the first three videos
+	if (filesPaths.size() > 2) {
+		loadVideo(filesPaths[0], &videoPlayers[0]);
+		loadVideo(filesPaths[1], &videoPlayers[1]);
+		loadVideo(filesPaths[2], &videoPlayers[2]);
 	}
-	else {
-		cout << "not enough videos loaded" << endl;
-	}
-	
+	else { cout << "not enough videos!!" << endl; }		
+
 	//init timer
 	fileTimer = ofGetElapsedTimeMillis();
 
 	//start playing current video
-	current->play();
+	videoPlayers[0].play();
+	
+	current = &videoPlayers[0];
+	next = &videoPlayers[1];
 
 	fileIndex = 0;
 	
@@ -46,14 +48,15 @@ void ofApp::update() {
 		current->setFrame(0);		
 
 		//increment index in files list
-		if (fileIndex < filesPaths.size() - 1) fileIndex++;
-		else fileIndex = 0;
+		fileIndex++;
+		if (fileIndex == filesPaths.size())  fileIndex = 0;
 
-		//set current to next
-		current = next;
+		//switch current & next
+		current = &videoPlayers[fileIndex % 3];
+		next = &videoPlayers[(fileIndex + 1) % 3];
 
 		//load next video in a separate thread
-		loadVideo(filesPaths[fileIndex], next);				
+		loadVideo(filesPaths[fileIndex], next);						
 
 		//start playing next video
 		current->play();			
@@ -82,11 +85,12 @@ void ofApp::checkNewVideos() {
 			//if video not already in files list
 			if (std::find(filesPaths.begin(), filesPaths.end(), dir.getPath(i)) == filesPaths.end()) {
 				cout << "new video found : " << dir.getPath(i) << endl;
-				//play new video next
-				//loadVideo(dir.getPath(i), next);				
-				//push video at end of file list
-				//filesPaths.push_back(dir.getPath(i));				
-				filesPaths.insert(filesPaths.begin() + fileIndex, dir.getPath(i));
+				
+				//put file 2 elements away from current
+				try { filesPaths.insert((filesPaths.begin() + fileIndex + 2), dir.getPath(i)); }
+				catch (exception e) { 
+					filesPaths.insert((filesPaths.begin()), dir.getPath(i));					
+				}
 			}
 		}
 	}
