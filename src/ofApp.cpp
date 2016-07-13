@@ -9,6 +9,7 @@ void ofApp::setup() {
 	
 	videoPlayers[0] = *new ofVideoPlayer();
 	videoPlayers[1] = *new ofVideoPlayer();
+	videoPlayers[2] = *new ofVideoPlayer();
 
 	//go through and save the files paths
 	for (int i = 0; i < dir.size(); i++) {
@@ -16,12 +17,19 @@ void ofApp::setup() {
 	}
 
 	//load the first three videos
+	/*
 	if (filesPaths.size() > 2) {
 		loadVideo(filesPaths[0], &videoPlayers[0]);
 		loadVideo(filesPaths[1], &videoPlayers[1]);
 		loadVideo(filesPaths[2], &videoPlayers[2]);
-	}
+	}	
 	else { cout << "not enough videos!!" << endl; }		
+	*/
+	for (int i = 0; i < 3; i++) {
+		videoPlayers[i].load(filesPaths[i]);
+		videoPlayers[i].setLoopState(OF_LOOP_NONE);
+		videoPlayers[i].setAnchorPercent(0.5, 0.5);
+	}
 
 	//init timer
 	fileTimer = ofGetElapsedTimeMillis();
@@ -34,6 +42,7 @@ void ofApp::setup() {
 
 	fileIndex = 0;
 	
+
 }
 
 //--------------------------------------------------------------
@@ -52,8 +61,10 @@ void ofApp::update() {
 		if (fileIndex == filesPaths.size())  fileIndex = 0;
 
 		//switch current & next
+		loader.lock();
 		current = &videoPlayers[fileIndex % 3];
 		next = &videoPlayers[(fileIndex + 1) % 3];
+		loader.unlock();
 
 		//load next video in a separate thread
 		loadVideo(filesPaths[fileIndex], next);						
@@ -101,7 +112,13 @@ void ofApp::checkNewVideos() {
 //loads next video
 //TODO make threaded
 void ofApp::loadVideo(string path, ofVideoPlayer* v) {	
-	v->load(path);
-	v->setLoopState(OF_LOOP_NONE);
-	v->setAnchorPercent(0.5, 0.5);	
+	//v->load(path);
+	loader.path = path;
+	loader.videoPlayer = *v;
+	loader.startThread();	
+}
+
+void ofApp::exit() {
+	// stop the thread
+	loader.stopThread();
 }
