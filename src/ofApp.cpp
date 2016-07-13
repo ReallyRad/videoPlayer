@@ -2,55 +2,72 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	//some path, may be absolute or relative to bin/data
-	string path = ".";
-
-	ofDirectory dir(path);
-	//only show mov files
-	dir.allowExt("mov");
+	//some path, may be absolute or relative to bin/data	
+	ofDirectory dir(".");
 	//populate the directory object
 	dir.listDir();
 	
-	//go through and load all the videos
+	current = new ofVideoPlayer();
+	next = new ofVideoPlayer();
+
+	//go through and save the files paths
 	for (int i = 0; i < dir.size(); i++) {
-		addNewVideo(dir.getPath(i), true);
+		filesPaths.push_back(dir.getPath(i));
 	}
 
-	current = 0;
-	videoPlayers[0].play();
-
+	//load the first two videos
+	if (filesPaths.size() > 1) {
+		loadVideo(filesPaths[0], current);
+		loadVideo(filesPaths[1], next);
+	}
+	else {
+		cout << "not enough videos loaded" << endl;
+	}
+	
+	//init timer
 	fileTimer = ofGetElapsedTimeMillis();
+
+	//start playing current video
+	current->play();
+
+	fileIndex = 0;
+	
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {	
 	//every second, check for new file and put it next on playback queue
-	if (ofGetElapsedTimeMillis() - fileTimer > 1000) {
-		checkNewVideos();
-		fileTimer = ofGetElapsedTimeMillis();
-	}
+	if (ofGetElapsedTimeMillis() - fileTimer > 1000) checkNewVideos();
 	
-	//if video finished, rewind, stop, set index to next video and load another video
-	if (videoPlayers[current].getIsMovieDone()) {
+	//if video finished, rewind, stop, set file index to next video and start playing next video
+	if (current->getIsMovieDone()) {
 		//reset video
-		videoPlayers[current].stop();
-		videoPlayers[current].setFrame(0);
+		current->stop();
+		current->setFrame(0);		
 
-		//increment index
-		if (current < videoPlayers.size() - 1) current++;
-		else current = 0;
-		videoPlayers[current].play();
-		
+		//increment index in files list
+		if (fileIndex < filesPaths.size() - 1) fileIndex++;
+		else fileIndex = 0;
+
+		//set current to next
+		current = next;
+
+		//load next video in a separate thread
+		loadVideo(filesPaths[fileIndex], next);				
+
+		//start playing next video
+		current->play();			
+
 	}
 
 	//update currently playing video
-	videoPlayers[current].update();
+	current->update();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 	//draw current video at center of screen
-	videoPlayers[current].draw(ofGetWidth() / 2, ofGetHeight() / 2);
+	current->draw(ofGetWidth() / 2, ofGetHeight() / 2);
 }
 
 //--------------------------------------------------------------
@@ -62,29 +79,25 @@ void ofApp::checkNewVideos() {
 	//look for new files in folder
 	for (int i = 0; i < dir.size(); i++) {
 		for (int j = 0; j < filesPaths.size(); j++) {
-			//if video not already in files list, add it
+			//if video not already in files list
 			if (std::find(filesPaths.begin(), filesPaths.end(), dir.getPath(i)) == filesPaths.end()) {
 				cout << "new video found : " << dir.getPath(i) << endl;
-				//add new found videos after currently playing
-				addNewVideo(dir.getPath(i), false);
+				//play new video next
+				//loadVideo(dir.getPath(i), next);				
+				//push video at end of file list
+				//filesPaths.push_back(dir.getPath(i));				
+				filesPaths.insert(filesPaths.begin() + fileIndex, dir.getPath(i));
 			}
 		}
 	}
+	fileTimer = ofGetElapsedTimeMillis();
 }
 
 //--------------------------------------------------------------
-void ofApp::addNewVideo(string path, bool end) {
-	//add new file at end of files list
-	filesPaths.push_back(path);
-	ofVideoPlayer * v = new ofVideoPlayer();
+//loads next video
+//TODO make threaded
+void ofApp::loadVideo(string path, ofVideoPlayer* v) {	
 	v->load(path);
 	v->setLoopState(OF_LOOP_NONE);
-	v->setAnchorPercent(0.5, 0.5);
-	//put at end of queue
-	if (end) videoPlayers.push_back(*v);
-	//put after currently playing video
-	else videoPlayers.insert(videoPlayers.begin() + current + 1, *v); //use threaded video loader here
-
-	//if more than max videos loaded, unload one video
-	if (videoPlayers.size>PLAYBACK_QUEUE_MAX_SIZE) videoPlayers.erase(videoPlayers.begin());
+	v->setAnchorPercent(0.5, 0.5);	
 }

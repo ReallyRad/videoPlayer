@@ -9,13 +9,13 @@ public:
 	void update();
 	void draw();
 	void checkNewVideos();
-	void addNewVideo(string path, bool end);
+	void loadVideo(string path, ofVideoPlayer* videoPlayer);
 
-	std::vector<ofVideoPlayer> videoPlayers;
-	int current;
+	ofVideoPlayer* current;
+	ofVideoPlayer* next;
+	int fileIndex;
 	int nr_videos;
 	std::vector<string> filesPaths;
 	double fileTimer;
-	ofDirectory dir;
-	#define PLAYBACK_QUEUE_MAX_SIZE 5
+	ofDirectory dir;		
 };
