@@ -16,4 +16,6 @@ public:
 	int nr_videos;
 	std::vector<string> filesPaths;
 	double fileTimer;
+	ofDirectory dir;
+	#define PLAYBACK_QUEUE_MAX_SIZE 5
 };
