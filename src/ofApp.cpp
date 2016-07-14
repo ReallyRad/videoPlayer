@@ -2,18 +2,13 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	//some path, may be absolute or relative to bin/data	
-	ofDirectory dir(".");
-	//populate the directory object
-	dir.listDir();
 	
-	videoPlayers[0] = *new ofVideoPlayer();
-	videoPlayers[1] = *new ofVideoPlayer();	
+	listDirs();
+	listFiles();
 
-	//go through and save the files paths
-	for (int i = 0; i < dir.size(); i++) {
-		filesPaths.push_back(dir.getPath(i));
-	}
+	//initialize videoPlayers
+	videoPlayers[0] = *new ofVideoPlayer();
+	videoPlayers[1] = *new ofVideoPlayer();
 
 	//load the first video	
 	loadVideo(filesPaths[0], &videoPlayers[0], &loaders[0]);	
@@ -21,8 +16,8 @@ void ofApp::setup() {
 	
 	//init timer
 	fileTimer = ofGetElapsedTimeMillis();
-		
 	
+
 	current = &loaders[0].videoPlayer;
 	next = &loaders[1].videoPlayer;
 	
@@ -39,6 +34,9 @@ void ofApp::setup() {
 void ofApp::update() {	
 	//every second, check for new file and put it next on playback queue
 	if (ofGetElapsedTimeMillis() - fileTimer > 1000) checkNewVideos();
+
+	//every 3 seconds, check for new file and put it next on playback queue
+	if (ofGetElapsedTimeMillis() - dirTimer > 3000) checkNewDirs();
 	
 	//if video finished, rewind, stop, set file index to next video and start playing next video
 	if (current->getIsMovieDone()) {
@@ -92,27 +90,87 @@ void ofApp::draw() {
 }
 
 //--------------------------------------------------------------
-void ofApp::checkNewVideos() {	
-	//set directory
-	ofDirectory dir(".");
-	dir.listDir();
+void ofApp::checkNewVideos() {		
+	//get path for last directory
+	int s = dirPaths.size();
+	string path = dirPaths.at(s - 1);	
+	ofDirectory last(path);	
+	last.listDir();
 
 	//look for new files in folder
-	for (int i = 0; i < dir.size(); i++) {
-		for (int j = 0; j < filesPaths.size(); j++) {
-			//if video not already in files list
-			if (std::find(filesPaths.begin(), filesPaths.end(), dir.getPath(i)) == filesPaths.end()) {
-				cout << "new video found : " << dir.getPath(i) << endl;
-				
-				//put file next in file list
-				filesPaths.insert((filesPaths.begin() + (fileIndex + 1)%(filesPaths.size()-1)), dir.getPath(i)); 
+	if (last.size() > filesPaths.size()) {
+		cout << "new file detected" << endl;
+		
+		for (int i = 0; i < last.size(); i++) { //for every element in last folder
+			for (int j = 0; j < filesPaths.size(); j++) { //for every element in filesPaths list
+				//check if video not already in files list
+				if (std::find(filesPaths.begin(), filesPaths.end(), last.getPath(i)) == filesPaths.end()) {
+					cout << "new video found : " << last.getPath(i) << endl;
+
+					//put file next in file list so it can be loaded immediatly
+					filesPaths.insert((filesPaths.begin() + (fileIndex + 1) % (filesPaths.size() - 1)), last.getPath(i));
+				}
 			}
 		}
 	}
+	
+
 	fileTimer = ofGetElapsedTimeMillis();
 }
 
 //--------------------------------------------------------------
+//writes list of files within last subdirectory in filesPaths
+void ofApp::listFiles() {
+	
+	//the last folder within bin/data in alphabetical order
+	ofDirectory last(dirPaths.back());
+
+	//populate the directory object
+	last.listDir();
+
+	//list the files within the last dir and write that into filesPaths
+	for (int i = 0; i < last.size(); i++) {
+		filesPaths.push_back(last.getPath(i));
+	}
+}
+
+//--------------------------------------------------------------
+//puts list of subdirectories into dirPaths
+void ofApp::listDirs() {
+	
+	//the bin/data folder	
+	ofDirectory dir(".");
+
+	//populate the directory object
+	dir.listDir();
+
+	//list all the folders
+	for (int i = 0; i < dir.size(); i++) {
+		dirPaths.push_back(dir.getPath(i));
+	}
+
+}
+
+//--------------------------------------------------------------
+//checks if new dir
+void ofApp::checkNewDirs() {	
+	//set directory
+	ofDirectory bindata(".");
+	bindata.listDir();
+
+	if (bindata.size() > dirPaths.size()) {
+		cout << "new folder detected" << endl;
+
+		//reset the folder list
+		dirPaths.clear();
+		listDirs();
+		filesPaths.clear();
+		listFiles();		
+	}
+			
+	dirTimer = ofGetElapsedTimeMillis();
+}
+
 //loads next video
 //TODO make threaded
 void ofApp::loadVideo(string path, ofVideoPlayer* v, ThreadedVideoLoader* t) {	

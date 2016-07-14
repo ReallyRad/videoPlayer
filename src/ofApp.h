@@ -12,16 +12,19 @@ public:
 	void exit();
 	void checkNewVideos();
 	void loadVideo(string path, ofVideoPlayer* videoPlayer, ThreadedVideoLoader* loader);
+	void checkNewDirs();
+	void listFiles();
+	void listDirs();
 
 	ofVideoPlayer videoPlayers[2];
 	ofVideoPlayer * current;
 	ofVideoPlayer * next;
 
-	int fileIndex;
-	int nr_videos;
-	std::vector<string> filesPaths;
+	int fileIndex;	
+	std::vector<string> filesPaths; //list of files paths within the current folder
+	std::vector<string> dirPaths; //list of directories within the bin/data folder
 	double fileTimer;
-	ofDirectory dir;		
+	double dirTimer;	
 
 	ThreadedVideoLoader loaders[2];
 };
