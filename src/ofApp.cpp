@@ -1,8 +1,7 @@
 #include "ofApp.h"
 
 //--------------------------------------------------------------
-void ofApp::setup() {
-	
+void ofApp::setup() {	
 	listDirs();
 	listFiles();
 	
@@ -17,8 +16,7 @@ void ofApp::setup() {
 	if (started) {
 		loadVideo(filesPaths[0], &videoPlayers[0], &loaders[0]);
 		loadVideo(filesPaths[1], &videoPlayers[1], &loaders[1]);
-	}
-	
+	}	
 	
 	//init timer
 	fileTimer = ofGetElapsedTimeMillis();
@@ -41,6 +39,12 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {	
+	//if we had some error loading a video, rebuild file index
+	if (loaders[0].error || loaders[1].error) {
+		listFiles();
+//		fileIndex 
+	}
+
 	//every second, check for new file and put it next on playback queue
 	if (ofGetElapsedTimeMillis() - fileTimer > 1000) checkNewVideos();
 
@@ -53,11 +57,7 @@ void ofApp::update() {
 		//reset video
 		current->stop();
 		current->setFrame(0);
-		/*
-		for (int i = 0; i < filesPaths.size(); i++) {
-		cout << "filesPaths[" << i << "] : " << filesPaths[i] << endl;
-		}
-		*/
+		
 		//increment index in files list
 		fileIndex++;
 		if (fileIndex == filesPaths.size())  fileIndex = 0;
@@ -81,12 +81,12 @@ void ofApp::update() {
 		//start playing next video
 		current->play();
 		current->setLoopState(OF_LOOP_NONE);
-	}
-	
+	}	
 
 	//update currently playing video
 	if (started) {				
 		current->update();
+		if (filesPaths.size() < 4) started = false();
 	}
 	else if (filesPaths.size() > 3) {
 		started = true;
