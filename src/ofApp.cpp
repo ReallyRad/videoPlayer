@@ -17,32 +17,28 @@ void ofApp::setup() {
 	}
 
 	//load the first three videos
-	/*
+	
 	if (filesPaths.size() > 2) {
-		loadVideo(filesPaths[0], &videoPlayers[0]);
-		loadVideo(filesPaths[1], &videoPlayers[1]);
-		loadVideo(filesPaths[2], &videoPlayers[2]);
+		for (int i = 0; i < 3; i++) {
+			loadVideo(filesPaths[i], &videoPlayers[i], &loaders[i]);
+		}				
 	}	
 	else { cout << "not enough videos!!" << endl; }		
-	*/
-	for (int i = 0; i < 3; i++) {
-		videoPlayers[i].load(filesPaths[i]);
-		videoPlayers[i].setLoopState(OF_LOOP_NONE);
-		videoPlayers[i].setAnchorPercent(0.5, 0.5);
-	}
-
+	
 	//init timer
 	fileTimer = ofGetElapsedTimeMillis();
-
-	//start playing current video
-	videoPlayers[0].play();
+		
 	
-	current = &videoPlayers[0];
-	next = &videoPlayers[1];
+	current = &loaders[0].videoPlayer;
+	next = &loaders[1].videoPlayer;
 
 	fileIndex = 0;
 	
+	Sleep(5000);
+	//start playing current video
+	current->play();
 
+	int x = 3;
 }
 
 //--------------------------------------------------------------
@@ -52,6 +48,7 @@ void ofApp::update() {
 	
 	//if video finished, rewind, stop, set file index to next video and start playing next video
 	if (current->getIsMovieDone()) {
+		
 		//reset video
 		current->stop();
 		current->setFrame(0);		
@@ -60,14 +57,16 @@ void ofApp::update() {
 		fileIndex++;
 		if (fileIndex == filesPaths.size())  fileIndex = 0;
 
-		//switch current & next
-		loader.lock();
-		current = &videoPlayers[fileIndex % 3];
-		next = &videoPlayers[(fileIndex + 1) % 3];
-		loader.unlock();
+		//switch current & next		
+		loaders[fileIndex%3].lock();
+		loaders[(fileIndex + 1) % 3].lock();
+		current = &loaders[fileIndex % 3].videoPlayer;
+		next = &loaders[(fileIndex + 1) % 3].videoPlayer;		
+		loaders[fileIndex % 3].unlock();
+		loaders[(fileIndex + 1) % 3].unlock();
 
 		//load next video in a separate thread
-		loadVideo(filesPaths[fileIndex], next);						
+		loadVideo(filesPaths[fileIndex], next, &loaders[(fileIndex + 1) % 3]);
 
 		//start playing next video
 		current->play();			
@@ -111,14 +110,16 @@ void ofApp::checkNewVideos() {
 //--------------------------------------------------------------
 //loads next video
 //TODO make threaded
-void ofApp::loadVideo(string path, ofVideoPlayer* v) {	
+void ofApp::loadVideo(string path, ofVideoPlayer* v, ThreadedVideoLoader* t) {	
 	//v->load(path);
-	loader.path = path;
-	loader.videoPlayer = *v;
-	loader.startThread();	
+	t->path = path;
+	t->videoPlayer = *v;	
+	t->startThread();	
 }
 
 void ofApp::exit() {
 	// stop the thread
-	loader.stopThread();
+	loaders[0].stopThread();
+	loaders[1].stopThread();
+	loaders[2].stopThread();
 }

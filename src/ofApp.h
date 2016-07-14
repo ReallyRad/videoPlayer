@@ -11,7 +11,7 @@ public:
 	void draw();
 	void exit();
 	void checkNewVideos();
-	void loadVideo(string path, ofVideoPlayer* videoPlayer);
+	void loadVideo(string path, ofVideoPlayer* videoPlayer, ThreadedVideoLoader* loader);
 
 	ofVideoPlayer videoPlayers[3];
 	ofVideoPlayer * current;
@@ -23,5 +23,5 @@ public:
 	double fileTimer;
 	ofDirectory dir;		
 
-	ThreadedVideoLoader loader;
+	ThreadedVideoLoader loaders[3];
 };

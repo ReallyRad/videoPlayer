@@ -10,6 +10,7 @@ class ThreadedVideoLoader : public ofThread {
 
 		// start
 			lock();
+
 			videoPlayer.load(path);
 			unlock();
 		// done
