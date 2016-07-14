@@ -36,7 +36,7 @@ void ofApp::setup() {
 	Sleep(5000);
 	//start playing current video
 	current->play();
-
+	current->setLoopState(OF_LOOP_NONE);
 	int x = 3;
 }
 
@@ -69,7 +69,7 @@ void ofApp::update() {
 
 		//start playing next video
 		current->play();			
-
+		current->setLoopState(OF_LOOP_NONE);
 	}
 
 	//update currently playing video

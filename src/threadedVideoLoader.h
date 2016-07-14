@@ -10,14 +10,17 @@ class ThreadedVideoLoader : public ofThread {
 
 		// start
 			lock();
+			isLoaded = false;
 			videoPlayer.setLoopState(OF_LOOP_NONE);
 			videoPlayer.setAnchorPercent(0.5, 0.5);
 			videoPlayer.load(path);
+			isLoaded = true;
 			unlock();
 		// done
 		}
 
 		public :		
+		bool isLoaded;
 		ofVideoPlayer videoPlayer;
 		string path;
 };
