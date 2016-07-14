@@ -10,7 +10,8 @@ class ThreadedVideoLoader : public ofThread {
 
 		// start
 			lock();
-
+			videoPlayer.setLoopState(OF_LOOP_NONE);
+			videoPlayer.setAnchorPercent(0.5, 0.5);
 			videoPlayer.load(path);
 			unlock();
 		// done
