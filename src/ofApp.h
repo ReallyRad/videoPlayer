@@ -13,7 +13,7 @@ public:
 	void checkNewVideos();
 	void loadVideo(string path, ofVideoPlayer* videoPlayer, ThreadedVideoLoader* loader);
 
-	ofVideoPlayer videoPlayers[3];
+	ofVideoPlayer videoPlayers[2];
 	ofVideoPlayer * current;
 	ofVideoPlayer * next;
 
@@ -23,5 +23,5 @@ public:
 	double fileTimer;
 	ofDirectory dir;		
 
-	ThreadedVideoLoader loaders[3];
+	ThreadedVideoLoader loaders[2];
 };
