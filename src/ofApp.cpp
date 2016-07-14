@@ -16,8 +16,7 @@ void ofApp::setup() {
 		filesPaths.push_back(dir.getPath(i));
 	}
 
-	//load the first three videos
-	
+	//load the first three videos	
 	if (filesPaths.size() > 2) {
 		for (int i = 0; i < 3; i++) {
 			loadVideo(filesPaths[i], &videoPlayers[i], &loaders[i]);
@@ -75,6 +74,11 @@ void ofApp::update() {
 
 	//update currently playing video
 	current->update();
+
+	//display framerate as window title
+	std::stringstream strm;
+	strm << "fps: " << ofGetFrameRate();
+	ofSetWindowTitle(strm.str());
 }
 
 //--------------------------------------------------------------
