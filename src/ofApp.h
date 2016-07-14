@@ -27,4 +27,6 @@ public:
 	double dirTimer;	
 
 	ThreadedVideoLoader loaders[2];
+
+	bool started; //whether we've started playing back the videos
 };
