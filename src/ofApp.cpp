@@ -6,7 +6,7 @@ void ofApp::setup() {
 	listFiles();
 	
 	started = false;
-	if (filesPaths.size() > 3) started = true;
+	if (filesPaths.size() > 1) started = true;
 
 	//initialize videoPlayers
 	videoPlayers[0] = *new ofVideoPlayer();
@@ -69,12 +69,9 @@ void ofApp::update() {
 		
 		//load next video in a separate thread
 		if (!newVideoDetected){
-			loadVideo(filesPaths[(fileIndex + 2)%filesPaths.size()], next, &loaders[(fileIndex) % 2]);
-			cout << "started loading next : " << filesPaths[fileIndex] << endl;
-			cout << endl;			
+			loadVideo(filesPaths[(fileIndex + 2)%filesPaths.size()], next, &loaders[(fileIndex) % 2]);						
 		}
-		else {
-			cout << "loading new video" << endl;
+		else {			
 			loadVideo(filesPaths[filesPaths.size()-1], next, &loaders[(fileIndex) % 2]);
 			newVideoDetected = false;
 		}		
@@ -91,9 +88,9 @@ void ofApp::update() {
 	//update currently playing video
 	if (started) {				
 		current->update();
-		if (filesPaths.size() < 4) started = false();
+		if (filesPaths.size() < 2) started = false();
 	}
-	else if (filesPaths.size() > 3) {
+	else if (filesPaths.size() > 1) {
 		started = true;
 		loadVideo(filesPaths[0], &videoPlayers[0], &loaders[0]);
 		Sleep(2000);
@@ -139,14 +136,12 @@ void ofApp::checkNewVideos() {
 		last.listDir();
 
 		//look for new files in folder
-		if (last.size() > filesPaths.size()) {
-			cout << "new file detected" << endl;
+		if (last.size() > filesPaths.size()) {			
 
 			for (int i = 0; i < last.size(); i++) { //for every element in last folder
 				for (int j = 0; j < filesPaths.size(); j++) { //for every element in filesPaths list
 					//check if video not already in files list
 					if (std::find(filesPaths.begin(), filesPaths.end(), last.getPath(i)) == filesPaths.end()) {
-						cout << "new video found : " << last.getPath(i) << endl;
 
 						//put file next in file list so it can be loaded immediatly
 						//filesPaths.insert((filesPaths.begin() + (fileIndex + 1) % (filesPaths.size())), last.getPath(i));
@@ -211,9 +206,7 @@ void ofApp::checkNewDirs() {
 	ofDirectory bindata(".");
 	bindata.listDir();
 
-	if (bindata.size() > dirPaths.size()) {
-		cout << "new folder detected" << endl;
-
+	if (bindata.size() > dirPaths.size()) {		
 		//reset the folder list
 		dirPaths.clear();
 		//populate it
@@ -222,8 +215,8 @@ void ofApp::checkNewDirs() {
 		filesPaths.clear();
 		//populate it
 		listFiles();		
-		//if file list has less than 4 files, stop playback
-		if (filesPaths.size() < 4) started = false;
+		//if file list has less than 2 files, stop playback
+		if (filesPaths.size() < 2) started = false;
 	}
 			
 	dirTimer = ofGetElapsedTimeMillis();
