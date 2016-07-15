@@ -35,6 +35,7 @@ void ofApp::setup() {
 	}
 
 	newVideoDetected = false;
+	debugMode = false;
 }
 
 //--------------------------------------------------------------
@@ -124,15 +125,8 @@ void ofApp::draw() {
 
 	if (debugMode) {
 		stringstream ss;
-		ss << "current : " << current->getMoviePath();
-		ofDrawBitmapString(ss.str(), 10, 20);
-		ss.clear();
-		ss << "next : " << next->getMoviePath();
-		ofDrawBitmapString(ss.str(), 10, 30);
-		ss.clear();
-		ss << "fileIndex : " << fileIndex;
-		ofDrawBitmapString(ss.str(), 10, 40);
-		ss.clear();				
+		ss << "current : " << current->getMoviePath() << endl << "next : " << next->getMoviePath() << endl <<  "fileIndex : " << fileIndex << endl;
+		ofDrawBitmapString(ss.str(), 10, 20);		
 	}
 }
 
