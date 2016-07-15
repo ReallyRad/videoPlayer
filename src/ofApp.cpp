@@ -18,6 +18,8 @@ void ofApp::setup() {
 		loadVideo(filesPaths[1], &videoPlayers[1], &loaders[1]);
 	}	
 	
+	Sleep(5000);
+
 	//init timer
 	fileTimer = ofGetElapsedTimeMillis();
 	
@@ -26,8 +28,6 @@ void ofApp::setup() {
 	
 	fileIndex = 0;
 	
-	Sleep(5000);
-
 	//start playing current video
 	if (started) {
 		current->play();
@@ -42,6 +42,7 @@ void ofApp::update() {
 	//if we had some error loading a video, rebuild file index
 	if (loaders[0].error || loaders[1].error) {
 		listFiles();
+		loaders[0].error = false; loaders[1].error = false;
 //		fileIndex 
 	}
 
@@ -52,33 +53,37 @@ void ofApp::update() {
 	if (ofGetElapsedTimeMillis() - dirTimer > 3000) checkNewDirs();
 		
 	//if video finished, rewind, stop, set file index to next video and start playing next video
-	if (current->getIsMovieDone()) {
+	if (current->getIsMovieDone()) {		
+		//reset video		
+		current->setFrame(0);				
 
-		//reset video
-		current->stop();
-		current->setFrame(0);
+		//switch current & next		
+		loaders[0].lock();
+		loaders[1].lock();
+		//will play next file now
+		current = &loaders[(fileIndex + 1) % 2].videoPlayer;
+		//previous buffer will be for loading next video
+		next = &loaders[fileIndex % 2].videoPlayer;
+		loaders[0].unlock();
+		loaders[1].unlock();
 		
+		//load next video in a separate thread
+		if (!newVideoDetected){
+			loadVideo(filesPaths[(fileIndex + 2)%filesPaths.size()], next, &loaders[(fileIndex) % 2]);
+			cout << "started loading next : " << filesPaths[fileIndex] << endl;
+			cout << endl;			
+		}
+		else {
+			cout << "loading new video" << endl;
+			loadVideo(filesPaths[filesPaths.size()-1], next, &loaders[(fileIndex) % 2]);
+			newVideoDetected = false;
+		}		
+
 		//increment index in files list
 		fileIndex++;
 		if (fileIndex >= filesPaths.size())  fileIndex = 0;
 
-		cout << "file index : " << fileIndex << endl;
-
-		//switch current & next		
-		loaders[fileIndex % 2].lock();
-		loaders[(fileIndex + 1) % 2].lock();
-		current = &loaders[fileIndex % 2].videoPlayer;
-		cout << "current : " << current->getMoviePath() << endl;
-		next = &loaders[(fileIndex + 1) % 2].videoPlayer;
-		loaders[fileIndex % 2].unlock();
-		loaders[(fileIndex + 1) % 2].unlock();
-
-		//load next video in a separate thread
-		loadVideo(filesPaths[fileIndex], next, &loaders[(fileIndex + 1) % 2]);
-
-		cout << "loading next : " << filesPaths[fileIndex] << endl;
-		cout << endl;
-		//start playing next video
+		//start playing new video
 		current->play();
 		current->setLoopState(OF_LOOP_NONE);
 	}	
@@ -99,6 +104,8 @@ void ofApp::update() {
 		current->play();
 		current->setLoopState(OF_LOOP_NONE);
 	}
+
+
 }
 
 //--------------------------------------------------------------
@@ -109,8 +116,14 @@ void ofApp::draw() {
 	ofSetWindowTitle(strm.str());
 
 	//draw current video at center of screen
-	if (started) current->draw(ofGetWidth() / 2, ofGetHeight() / 2);
-	else ofDrawBitmapString("Not enough videos loaded, waiting for more videos to load", ofGetWidth() / 2, ofGetHeight() / 2);
+	if (started) {
+		current->draw(ofGetWidth() / 2, ofGetHeight() / 2);
+	}	
+	else {
+		stringstream ss;
+		ss << "Not enough videos loaded in " << dirPaths.back() << ", waiting for more videos to load" << endl;
+		ofDrawBitmapString(ss.str(), ofGetWidth() / 2-315, ofGetHeight() / 2);
+	}
 }
 
 //--------------------------------------------------------------
@@ -136,7 +149,10 @@ void ofApp::checkNewVideos() {
 						cout << "new video found : " << last.getPath(i) << endl;
 
 						//put file next in file list so it can be loaded immediatly
-						filesPaths.insert((filesPaths.begin() + (fileIndex + 1) % (filesPaths.size() - 1)), last.getPath(i));
+						//filesPaths.insert((filesPaths.begin() + (fileIndex + 1) % (filesPaths.size())), last.getPath(i));
+
+						filesPaths.push_back(last.getPath(i));						
+						newVideoDetected = true;
 					}
 				}
 			}

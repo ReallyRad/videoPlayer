@@ -13,7 +13,9 @@ class ThreadedVideoLoader : public ofThread {
 			error = false;
 			videoPlayer.setLoopState(OF_LOOP_NONE);
 			videoPlayer.setAnchorPercent(0.5, 0.5);
-			if(!videoPlayer.load(path)) error = true;			
+			if (!videoPlayer.load(path)) {
+				error = true;
+			}			
 			unlock();
 		// done
 		}
