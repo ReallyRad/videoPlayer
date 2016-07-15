@@ -15,6 +15,7 @@ public:
 	void checkNewDirs();
 	void listFiles();
 	void listDirs();
+	void keyPressed(int key);
 
 	ofVideoPlayer videoPlayers[2];
 	ofVideoPlayer * current;
@@ -30,4 +31,5 @@ public:
 
 	bool started; //whether we've started playing back the videos
 	bool newVideoDetected;
+	bool debugMode;
 };

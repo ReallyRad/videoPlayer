@@ -34,7 +34,7 @@ void ofApp::setup() {
 		current->setLoopState(OF_LOOP_NONE);
 	}
 
-	int x = 3;
+	newVideoDetected = false;
 }
 
 //--------------------------------------------------------------
@@ -120,6 +120,19 @@ void ofApp::draw() {
 		stringstream ss;
 		ss << "Not enough videos loaded in " << dirPaths.back() << ", waiting for more videos to load" << endl;
 		ofDrawBitmapString(ss.str(), ofGetWidth() / 2-315, ofGetHeight() / 2);
+	}
+
+	if (debugMode) {
+		stringstream ss;
+		ss << "current : " << current->getMoviePath();
+		ofDrawBitmapString(ss.str(), 10, 20);
+		ss.clear();
+		ss << "next : " << next->getMoviePath();
+		ofDrawBitmapString(ss.str(), 10, 30);
+		ss.clear();
+		ss << "fileIndex : " << fileIndex;
+		ofDrawBitmapString(ss.str(), 10, 40);
+		ss.clear();				
 	}
 }
 
@@ -235,4 +248,10 @@ void ofApp::exit() {
 	// stop the thread
 	loaders[0].stopThread();
 	loaders[1].stopThread();	
+}
+
+void ofApp::keyPressed(int key) {
+	if (key == OF_KEY_UP) {
+		debugMode = !debugMode;
+	}
 }
