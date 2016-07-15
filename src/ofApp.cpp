@@ -60,7 +60,7 @@ void ofApp::update() {
 		
 		//increment index in files list
 		fileIndex++;
-		if (fileIndex == filesPaths.size())  fileIndex = 0;
+		if (fileIndex >= filesPaths.size())  fileIndex = 0;
 
 		cout << "file index : " << fileIndex << endl;
 
