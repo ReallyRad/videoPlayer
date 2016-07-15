@@ -180,7 +180,10 @@ void ofApp::listDirs() {
 
 	//list all the folders
 	for (int i = 0; i < dir.size(); i++) {
-		dirPaths.push_back(dir.getPath(i));
+		ofDirectory dar(dir.getPath(i));
+		if (dar.isDirectory()) {
+			dirPaths.push_back(dir.getPath(i));
+		}
 	}
 
 }
