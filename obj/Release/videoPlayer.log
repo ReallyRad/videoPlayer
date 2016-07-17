@@ -1,6 +1,4 @@
-﻿  main.cpp
-  ofApp.cpp
-     Creating library bin\videoPlayer.lib and object bin\videoPlayer.exp
+﻿     Creating library bin\videoPlayer.lib and object bin\videoPlayer.exp
   LINK : /LTCG specified but no code generation required; remove /LTCG from the link command line to improve linker performance
   videoPlayer.vcxproj -> C:\of_v0.9.3_vs_release\apps\videoPlayer\videoPlayer\bin\videoPlayer.exe
   
