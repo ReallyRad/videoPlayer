@@ -2,6 +2,9 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {	
+//	dirPaths = std::vector<string>();
+//	filesPaths = std::vector<string>();
+
 	listDirs();
 	listFiles();
 	
@@ -36,6 +39,8 @@ void ofApp::setup() {
 
 	newVideoDetected = false;
 	debugMode = false;
+	fullScreen = false;
+	ofSetFullscreen(fullScreen);
 }
 
 //--------------------------------------------------------------
@@ -170,13 +175,13 @@ void ofApp::listFiles() {
 	
 	//the last folder within bin/data in alphabetical order
 	if (dirPaths.size() > 0) {
-		ofDirectory last(dirPaths.back());
+		ofDirectory last(dirPaths[dirPaths.size() - 1]);
 
 		//populate the directory object
 		last.listDir();
 
 		//clear filesPaths
-		filesPaths.clear();
+		filesPaths = {};
 
 		//list the files within the last dir and write that into filesPaths
 		for (int i = 0; i < last.size(); i++) {
@@ -194,8 +199,7 @@ void ofApp::listDirs() {
 	ofDirectory dir(".");
 
 	//populate the directory object
-	dir.listDir();
-
+	dir.listDir();	
 	//list all the folders
 	for (int i = 0; i < dir.size(); i++) {
 		ofDirectory dar(dir.getPath(i));
@@ -247,5 +251,9 @@ void ofApp::exit() {
 void ofApp::keyPressed(int key) {
 	if (key == OF_KEY_UP) {
 		debugMode = !debugMode;
+	}
+	if (key == OF_KEY_RIGHT) {
+		fullScreen = !fullScreen;
+		ofSetFullScreen(fullScreen);
 	}
 }

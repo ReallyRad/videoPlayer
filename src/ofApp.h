@@ -22,8 +22,8 @@ public:
 	ofVideoPlayer * next;
 
 	int fileIndex;	
-	std::vector<string> filesPaths; //list of files paths within the current folder
-	std::vector<string> dirPaths; //list of directories within the bin/data folder
+	std::vector<string> filesPaths{}; //list of files paths within the current folder
+	std::vector<string> dirPaths{}; //list of directories within the bin/data folder
 	double fileTimer;
 	double dirTimer;	
 
@@ -32,4 +32,5 @@ public:
 	bool started; //whether we've started playing back the videos
 	bool newVideoDetected;
 	bool debugMode;
+	bool fullScreen;
 };
