@@ -39,7 +39,7 @@ void ofApp::setup() {
 
 	newVideoDetected = false;
 	debugMode = false;
-	fullScreen = false;
+	fullScreen = true;
 	ofSetFullscreen(fullScreen);
 }
 
@@ -47,6 +47,8 @@ void ofApp::setup() {
 void ofApp::update() {	
 	//if we had some error loading a video, rebuild file index
 	if (loaders[0].error || loaders[1].error) {
+		started = false;
+		listDirs();
 		listFiles();
 		loaders[0].error = false; loaders[1].error = false;
 //		fileIndex 
@@ -254,6 +256,6 @@ void ofApp::keyPressed(int key) {
 	}
 	if (key == OF_KEY_RIGHT) {
 		fullScreen = !fullScreen;
-		ofSetFullScreen(fullScreen);
+		ofSetFullscreen(fullScreen);
 	}
 }

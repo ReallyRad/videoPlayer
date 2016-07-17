@@ -15,6 +15,7 @@ class ThreadedVideoLoader : public ofThread {
 			videoPlayer.setAnchorPercent(0.5, 0.5);
 			if (!videoPlayer.load(path)) {
 				error = true;
+				cout << "error loading file" << endl;
 			}			
 			unlock();
 		// done
