@@ -7,9 +7,8 @@ void ofApp::setup() {
 
 	listDirs();
 	listFiles();
-	
-	started = false;
-	if (filesPaths.size() > 1) started = true;
+		
+	if (filesPaths.size() > 0) started = true;
 
 	//initialize videoPlayers
 	videoPlayers[0] = *new ofVideoPlayer();
@@ -18,7 +17,8 @@ void ofApp::setup() {
 	//load the first video	
 	if (started) {
 		loadVideo(filesPaths[0], &videoPlayers[0], &loaders[0]);
-		loadVideo(filesPaths[1], &videoPlayers[1], &loaders[1]);
+		if (filesPaths.size()>1) loadVideo(filesPaths[1], &videoPlayers[1], &loaders[1]);
+		else loadVideo(filesPaths[0], &videoPlayers[1], &loaders[1]);
 	}	
 	
 	Sleep(5000);
@@ -96,14 +96,14 @@ void ofApp::update() {
 	//update currently playing video
 	if (started) {				
 		current->update();
-		if (filesPaths.size() < 2) started = false();
+		if (filesPaths.size() < 1) started = false();
 	}
-	else if (filesPaths.size() > 1) {
+	else if (filesPaths.size() > 0) {
 		started = true;
 		loadVideo(filesPaths[0], &videoPlayers[0], &loaders[0]);
 		Sleep(2000);
-		loadVideo(filesPaths[1], &videoPlayers[1], &loaders[1]);		
-		Sleep(2000);
+		if (filesPaths.size()>1) loadVideo(filesPaths[1], &videoPlayers[1], &loaders[1]);
+		else loadVideo(filesPaths[0], &videoPlayers[1], &loaders[1]);
 		current = &loaders[0].videoPlayer;
 		next = &loaders[1].videoPlayer;
 		current->play();
@@ -229,7 +229,7 @@ void ofApp::checkNewDirs() {
 		//populate it
 		listFiles();		
 		//if file list has less than 2 files, stop playback
-		if (filesPaths.size() < 2) started = false;
+		if (filesPaths.size() < 1) started = false;
 	}
 			
 	dirTimer = ofGetElapsedTimeMillis();
