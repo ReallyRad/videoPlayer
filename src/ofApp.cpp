@@ -122,7 +122,7 @@ void ofApp::draw() {
 
 	//draw current video at center of screen
 	if (started) {
-		current->draw(ofGetWidth() / 2, ofGetHeight() / 2);
+		current->draw(ofGetWidth() / 2, ofGetHeight() / 2, ofGetWidth(), ofGetHeight());
 	}	
 	else {
 		stringstream ss;
